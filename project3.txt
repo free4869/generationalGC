@@ -1,0 +1,11 @@
+Project3: Generational Garbage Collector
+
+Partitioned Heap:
+Based on Bucket Brigade technique, the heap is partitioned into three generations: Eden generation(generaton 0), Survivor generation(generation 1) and Old generation(2). Generation 0 is flat space used for newly allocated objects. Generation 1 has a fromspace and a tospace. The survived objects from generation 1 will be moved to the tospace of generation 1. Objects that survived two GC cycles are stored in Old Generation. The initial size of generations are: 4 pools for Eden Generation, 1 pool for each semi-space of Generation 1, 2 pools for Old Generation.
+
+Object Allocation:
+Always allocation new objects from Eden Generation. If Eden Generation is full, do young collection once.
+
+Collection and Promotion:
+For young generation collection, locate all the explicit roots from pointer stack and add them into worklist. Then parse cards from Old Generation pools, if a remember set is set to 1(card is dirty), parse the whole card to find all the internal roots pointing to young generation.
+Copy all the survived objects in Generation 0 into Generation 1's tospace. Copy all the survived objects in Generation 1 into Generation 2. If a suitable free object in Old Generation is found, allocate using the free object, otherwise copy it to the free space of Old Generation directly. If Old Generation is full, call ggggc_collectFull to perform a Mark phase for the whole heap and sweep the Old Generation. Add unreachable objects into free list.
